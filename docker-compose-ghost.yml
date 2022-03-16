@@ -1,0 +1,46 @@
+version: "3.3"
+services:
+  ghost:
+    image: ghost:${GHOST_TAG}
+    container_name: ghost
+    restart: always
+    ports:
+      - "2368:2368"
+    depends_on:
+      - db
+    environment:
+      url: ${url}
+      database__client: mysql
+      database__connection__host: ${DB_IP}
+      database__connection__user: ghost
+      database__connection__password: ${MYSQL_PASSWORD}
+      database__connection__database: ghostdb
+    volumes:
+      - ghost_content:/var/lib/ghost/content
+    mac_address: ${GHOST_MAC}
+    networks:
+      home:
+        ipv4_address: ${GHOST_IP}
+
+  db:
+    image: lscr.io/linuxserver/mariadb:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ghost
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ghostdb
+    volumes:
+      - ghost_mysql:/var/lib/mysql
+    mac_address: ${DB_MAC}
+    networks:
+      home:
+        ipv4_address: ${DB_IP}
+
+networks:
+  home:
+    external: true
+
+volumes:
+  ghost_content:
+  ghost_mysql:

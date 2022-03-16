@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+
+  wireguard:
+      image: linuxserver/wireguard:${WIREGUARD_TAG}
+      container_name: wireguard
+      mac_address: ${WIREGUARD_MAC}
+      networks:
+        home:
+          ipv4_address: ${WIREGUARD_IP}
+      cap_add:
+        - NET_ADMIN
+        - SYS_MODULE
+      environment:
+        - PUID: 1000
+        - PGID: 1000
+        - TZ: Europe/London
+        - SERVERURL: ${SERVERURL}
+        - SERVERPORT: ${SERVERPORT}
+        - PEERS: ${PEERS}
+        - PEERDNS: ${PEERDNS}
+      volumes:
+        - wireguard_config:/config
+        - /usr/src:/usr/src
+        - /lib/modules:/lib/modules
+      sysctls:
+        - net.ipv4.conf.all.src_valid_mark=1
+      restart: unless-stopped
+
+networks:
+  home:
+    external: true
+
+volumes:
+  wireguard_config:
+    external: true

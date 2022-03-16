@@ -1,0 +1,133 @@
+version: '3.7'
+
+networks:
+  home:
+    external: true
+
+services:
+
+  # nzbget:
+  #   container_name: nzbget
+  #   image: hotio/nzbget:${NZB_TAG}
+  #   restart: unless-stopped
+  #   environment:
+  #     - TZ='Europe/London'
+  #     - PUID=${UID}
+  #     - PGID=${GID}
+  #     - UMASK=022
+  #   volumes:
+  #     - nzbget_data:/config
+  #     - ${HOST_MEDIA_VOLUME}:/media
+  #   mac_address: ${NZB_MAC}
+  #   dns: ${CONTAINER_DNS}
+  #   networks:
+  #     home:
+  #       ipv4_address: ${NZB_IP}
+
+  sabnzbd:
+    container_name: sabnzbd
+    image: cr.hotio.dev/hotio/sabnzbd:${SAB_TAG}
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - UMASK=002
+      - TZ='Europe/London'
+    volumes:
+      - sab_data:/config
+      - ${HOST_MEDIA_VOLUME}:/media
+    mac_address: ${SAB_MAC}
+    dns: ${CONTAINER_DNS}
+    networks:
+      home:
+        ipv4_address: ${SAB_IP}
+
+
+  sonarr:
+    container_name: sonarr
+    image: hotio/sonarr:${SONARR_TAG}
+    restart: unless-stopped
+    environment:
+      - TZ='Europe/London'
+      - PUID=${UID}
+      - PGID=${GID}
+      - UMASK=022
+    volumes:
+      - sonarr_data:/config
+      # - ${HOST_BACKUP_DIR}/sonarr:/config/Backups
+      - ${HOST_MEDIA_VOLUME}:/media
+      - /etc/localtime:/etc/localtime:ro
+    mac_address: ${SONARR_MAC}
+    dns: ${CONTAINER_DNS}
+    networks:
+      home:
+        ipv4_address: ${SONARR_IP}
+
+  radarr:
+    container_name: radarr
+    image: hotio/radarr:${RADARR_TAG}
+    restart: unless-stopped
+    environment:
+      - TZ='Europe/London'
+      - PUID=${UID}
+      - PGID=${GID}
+      - UMASK=022
+    volumes:
+      - radarr_data:/config
+      # - ${HOST_BACKUP_DIR}/radarr:/config/Backups
+      - ${HOST_MEDIA_VOLUME}:/media
+    mac_address: ${RADARR_MAC}
+    dns: ${CONTAINER_DNS}
+    networks:
+      home:
+        ipv4_address: ${RADARR_IP}
+
+  tautulli:
+    image: hotio/tautulli:${TAUT_TAG}
+    container_name: tautulli
+    environment:
+      - TZ='Europe/London'
+      - PUID=${UID}
+      - PGID=${GID}
+      - UMASK=022
+    volumes:
+      - tautulli_data:/config
+      # - ${HOST_BACKUP_DIR}/tautulli:/config/backups
+    restart: unless-stopped
+    mac_address: ${TAUT_MAC}
+    dns: ${CONTAINER_DNS}
+    networks:
+      home:
+        ipv4_address: ${TAUT_IP}
+
+  plex:
+    container_name: plex
+    image: cr.hotio.dev/hotio/plex
+    environment:
+      - PUID=${UID}
+      - PGID=${GID}
+      - UMASK=022
+      - TZ='Europe/London'
+      - PLEX_CLAIM=${PLEX_CLAIM}
+      # - ADVERTISE_IP
+      # - ALLOWED_NETWORKS
+      - PLEX_PASS=yes
+    volumes:
+      - ${HOST_MEDIA_VOLUME}:/media
+      - plex_config:/config
+      - plex_transcode:/transcode
+    devices:
+       - /dev/dri:/dev/dri # For H/W transcoding
+    mac_address: ${PLEX_MAC}
+    dns: ${CONTAINER_DNS}
+    networks:
+      home:
+        ipv4_address: ${PLEX_IP}
+
+volumes:
+  nzbget_data:
+  sonarr_data:
+  radarr_data:
+  tautulli_data:
+  plex_config:
+  plex_transcode:
+  sab_data:

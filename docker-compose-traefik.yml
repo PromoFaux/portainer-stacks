@@ -1,0 +1,71 @@
+version: '3.3'
+
+services:
+  traefik_v2:
+    container_name: traefik
+    hostname: traefik
+    image: traefik:${TRAEFIK_TAG}
+    command:
+      # Providers
+      - --providers.docker=true
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.watch=true
+      - --providers.docker.exposedbydefault=false
+      - --providers.file=true
+      - --providers.file.watch=true
+      - --providers.file.directory=/etc/traefik/traefik.conf.d
+      #
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --api.debug=false
+      #
+      - --log.filepath=/etc/traefik/traefik.log
+      - --log.level=ERROR
+      #
+      - --accesslog.format=common
+      - --accesslog.filePath=/etc/traefik/traefik_access.log
+      # Set up an insecure listener that redirects all traffic to TLS
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=web-secure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web-secure.address=:443
+      # Set up the TLS configuration for our web-secure listener
+      - --entrypoints.web-secure.http.tls=true
+      - --entrypoints.web-secure.http.tls.certResolver=le
+      - --entrypoints.web-secure.http.tls.domains[0].main=${TRAEFIK_DOMAIN1}
+      - --entrypoints.web-secure.http.tls.domains[0].sans=*.${TRAEFIK_DOMAIN1}
+      - --entrypoints.web-secure.http.tls.domains[1].main=${TRAEFIK_DOMAIN2}
+      - --entrypoints.web-secure.http.tls.domains[1].sans=*.${TRAEFIK_DOMAIN2}
+      # Other Entrypoints
+      - --entrypoints.dot.address=:853
+      - --entrypoints.wireguard.address=:51820
+      # LetsEncrypt
+      - --certificatesresolvers.le.acme.email=${LE_EMAIL}
+      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
+      - --certificatesResolvers.le.acme.dnsChallenge=true
+      - --certificatesResolvers.le.acme.dnsChallenge.provider=cloudflare
+     #- --providers.file=true
+    environment:
+      - TZ=Europe/London
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_API_KEY=${CF_API_KEY}
+    volumes:
+      # - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik_confd:/etc/traefik/traefik.conf.d
+      - traefik_letsencrypt:/letsencrypt
+    mac_address: ${TRAEFIK_MAC}
+    networks:
+      home:
+        ipv4_address: ${TRAEFIK_IP}
+    restart: always
+
+networks:
+  home:
+    external: true
+
+volumes:
+  traefik_confd:
+    external: true
+  traefik_letsencrypt:
+    external: true

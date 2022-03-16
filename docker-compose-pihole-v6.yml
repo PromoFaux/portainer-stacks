@@ -1,0 +1,39 @@
+version: '3.3'
+services:
+
+  pihole:
+    container_name: pihole
+    hostname: ${PIHOLE_HOSTNAME}
+    image: pihole/pihole:${PIHOLE_TAG}
+    environment:
+      TZ: europe/London
+      FTLCONF_LOCAL_IPV4: ${PIHOLE_IP}
+      FTLCONF_PIHOLE_PTR: ${PIHOLE_PTR}
+      REV_SERVER: 'true'
+      REV_SERVER_DOMAIN: ${REV_SERVER_DOMAIN}
+      REV_SERVER_TARGET: ${REV_SERVER_TARGET}
+      REV_SERVER_CIDR: ${REV_SERVER_CIDR}
+      SKIPGRAVITYONBOOT: ${SKIPGRAVITYONBOOT}
+      PIHOLE_DNS_: ${PIHOLE_DNS_}
+      WEBPASSWORD: ${WEBPASSWORD}
+      DNSMASQ_USER: ${DNSMASQ_USER}
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
+    volumes:
+      - pihole_etc_pihole:/etc/pihole/
+    cap_add:
+      - NET_ADMIN
+    mac_address: ${PIHOLE_MAC}
+    dns:
+     - 8.8.8.8
+    networks:
+      home:
+        ipv4_address: ${PIHOLE_IP}
+    restart: always
+
+networks:
+  home:
+    external: true
+
+volumes:
+  pihole_etc_pihole:
+  pihole_etc_dnsmasqd:

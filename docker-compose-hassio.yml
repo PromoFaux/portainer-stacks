@@ -1,0 +1,40 @@
+version: '3.3'
+
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:${HASSIO_TAG}
+    volumes:
+      - hassio_config:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    mac_address: ${HASSIO_MAC}
+    networks:
+      home:
+        ipv4_address: ${HASSIO_IP}
+
+  ha-auto-guest-login:
+    image: norick/ha-auto-guest-login:main
+    container_name: ha-auto-guest-login
+    environment:
+      - CLIENTID=${CLIENT_ID}
+      - URL=${URL}
+      - DASH=${DASH}
+      - USER=${USER}
+      - PASS=${PASS}
+    # ports:
+    #   - 80:80
+    restart: unless-stopped
+    mac_address: ${HASSIO_AGL_MAC}
+    networks:
+      home:
+        ipv4_address: ${HASSIO_AGL_IP}
+
+networks:
+  home:
+    external: true
+
+volumes:
+  hassio_config:
+    external: true
