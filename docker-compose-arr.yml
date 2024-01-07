@@ -26,7 +26,7 @@ services:
 
   sabnzbd:
     container_name: sabnzbd
-    image: cr.hotio.dev/hotio/sabnzbd:${SAB_TAG}
+    image: ghcr.io/hotio/sabnzbd:${SAB_TAG}
     environment:
       - PUID=${UID}
       - PGID=${GID}
@@ -44,7 +44,7 @@ services:
 
   sonarr:
     container_name: sonarr
-    image: hotio/sonarr:${SONARR_TAG}
+    image: ghcr.io/hotio/sonarr:${SONARR_TAG}
     restart: unless-stopped
     environment:
       - TZ='Europe/London'
@@ -64,7 +64,7 @@ services:
 
   radarr:
     container_name: radarr
-    image: hotio/radarr:${RADARR_TAG}
+    image: ghcr.io/hotio/radarr:${RADARR_TAG}
     restart: unless-stopped
     environment:
       - TZ='Europe/London'
@@ -101,7 +101,7 @@ services:
 
   plex:
     container_name: plex
-    image: cr.hotio.dev/hotio/plex
+    image:  ghcr.io/hotio/plex
     environment:
       - PUID=${UID}
       - PGID=${GID}
