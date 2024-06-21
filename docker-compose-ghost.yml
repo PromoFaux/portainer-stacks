@@ -23,7 +23,7 @@ services:
         ipv4_address: ${GHOST_IP}
 
   db:
-    image: lscr.io/linuxserver/mariadb:latest
+    image: lscr.io/linuxserver/mariadb:${MARIADB_TAG}
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
